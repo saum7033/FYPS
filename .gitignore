@@ -1,0 +1,12 @@
+# Ignore directories
+Detected Faces/
+Faces/
+build/
+__pycache__/
+
+# Ignore specific files
+face_database.pkl
+face_recognition_model.pkl
+label_to_name_mapping.pkl
+test_small.csv
+train_small.csv
