@@ -1,50 +1,49 @@
 import joblib
-from sklearn.metrics import accuracy_score, precision_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from load_data import load_data
+from feature_extraction import extract_features
 
-def evaluate_model(test_features, test_labels, total_test):
-    """Evaluate the model using the provided test features and labels."""
-    # Load the pre-trained classifier
-    print("Loading the pre-trained classifier...")
+def evaluate_model(test_features, test_labels):
+    """
+    Evaluate the pre-trained model using test features and labels.
+
+    Args:
+        test_features (array-like): Feature vectors for testing.
+        test_labels (array-like): Corresponding labels.
+
+    Returns:
+        dict: Metrics including accuracy, precision, recall, and F1-score.
+    """
+    print("Loading the pre-trained classifier and scaler...")
     clf = joblib.load('face_recognition_model.pkl')
-    print("Classifier loaded successfully.")
+    scaler = joblib.load('scaler.pkl')
+    print("Classifier and scaler loaded successfully.")
 
-    # Print shapes of test features and labels
-    print(f"Shape of test features: {len(test_features)}")
-    print(f"Shape of test labels: {len(test_labels)}")
-    print(f"Total Test Data: {total_test}")
-    print(f"Extracted Test Data: {len(test_features)}")
+    # Scale test features
+    test_features = scaler.transform(test_features)
 
-    # Handle mismatch between test features and labels
-    if len(test_features) != len(test_labels):
-        print("Warning: Mismatch between test features and labels.")
-        min_length = min(len(test_features), len(test_labels))
-        test_features = test_features[:min_length]
-        test_labels = test_labels[:min_length]
-        print(f"Using first {min_length} samples for evaluation.")
-
-    # Predict the labels for the test features
+    # Predict and evaluate
     predictions = clf.predict(test_features)
+    metrics = {
+        "accuracy": accuracy_score(test_labels, predictions),
+        "precision": precision_score(test_labels, predictions, average='weighted'),
+        "recall": recall_score(test_labels, predictions, average='weighted'),
+        "f1_score": f1_score(test_labels, predictions, average='weighted')
+    }
 
-    # Calculate accuracy and precision
-    accuracy = accuracy_score(test_labels, predictions)
-    precision = precision_score(test_labels, predictions, average='weighted', zero_division=1)
-
-    # Calculate test loss
-    test_loss = (total_test - len(test_features)) / total_test
-
-    # Display the results
-    print(f"\nEvaluation Results:")
-    print(f"Accuracy: {accuracy * 100:.2f}%")
-    print(f"Precision: {precision * 100:.2f}%")
-    print(f"Test Loss: {test_loss * 100:.2f}%")
+    return metrics
 
 if __name__ == "__main__":
-    try:
-        # Example usage of the evaluate_model function
-        # Replace with actual test features and labels
-        test_features = []  # Load or define test features
-        test_labels = []    # Load or define test labels
-        total_test = 100    # Define total test data count
-        evaluate_model(test_features, test_labels, total_test)
-    except KeyboardInterrupt:
-        print("\nEvaluation interrupted by user.")
+    print("Loading test data...")
+    csv_file = 'test.csv'
+    image_folder = 'Faces'
+
+    # Load test images and labels
+    images1, images2, labels = load_data(csv_file, image_folder)
+
+    # Extract features and filter labels
+    features, labels = extract_features(images1, images2, labels)
+
+    # Evaluate the model
+    metrics = evaluate_model(features, labels)
+    print(f"Metrics: {metrics}")

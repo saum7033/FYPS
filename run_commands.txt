@@ -1,0 +1,21 @@
+Summary of Commands
+
+1. Install dependencies 
+pip install pandas opencv-python scikit-learn joblib numpy face_recognition
+
+2. Train the model
+python3 train_model.py
+
+3. Evaluate the model
+python3 train_model.py
+
+4. Create a face database
+python3 create_face_database.py
+
+5. perform real-time recognition 
+python3 real_time_recognition_script.py
+
+6. Categorize faces 
+python3 categorize_faces.py
+
+
