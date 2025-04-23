@@ -2,6 +2,7 @@ import pandas as pd
 import joblib
 import cv2
 import os
+from tqdm import tqdm  # For progress tracking
 from feature_extraction import extract_features
 
 def create_face_database(csv_file, output_pkl):
@@ -18,7 +19,7 @@ def create_face_database(csv_file, output_pkl):
     # Initialize the database dictionary
     database = {}
 
-    for index, row in data.iterrows():
+    for index, row in tqdm(data.iterrows(), total=len(data), desc="Processing images"):
         image_path = row['image1']
         name = image_path.split('_')[0]  # Use the first part of the filename as the name
         full_image_path = os.path.join('Faces', image_path)  # Update this path as needed
@@ -33,9 +34,14 @@ def create_face_database(csv_file, output_pkl):
         else:
             print(f"Could not read image {full_image_path}")
 
+    # Validate the database
+    if len(database) == 0:
+        print("No features were extracted. Please check the input data.")
+        return
+
     # Save the database to a pickle file
     joblib.dump(database, output_pkl)
-    print(f"Face database saved to {output_pkl}")
+    print(f"Face database saved to {output_pkl} with {len(database)} entries.")
 
 if __name__ == "__main__":
     create_face_database('test.csv', 'face_database.pkl')

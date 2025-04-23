@@ -7,7 +7,7 @@ pip install pandas opencv-python scikit-learn joblib numpy face_recognition
 python3 train_model.py
 
 3. Evaluate the model
-python3 train_model.py
+python3 evaluate_model.py
 
 4. Create a face database
 python3 create_face_database.py

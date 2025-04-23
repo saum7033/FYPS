@@ -14,13 +14,17 @@ def evaluate_model(test_features, test_labels):
     Returns:
         dict: Metrics including accuracy, precision, recall, and F1-score.
     """
-    print("Loading the pre-trained classifier and scaler...")
-    clf = joblib.load('face_recognition_model.pkl')
+    print("Loading the pre-trained classifier, scaler, and label encoder...")
+    clf = joblib.load('face_recognition_model_xgb.pkl')
     scaler = joblib.load('scaler.pkl')
-    print("Classifier and scaler loaded successfully.")
+    label_encoder = joblib.load('label_encoder.pkl')
+    print("Classifier, scaler, and label encoder loaded successfully.")
 
     # Scale test features
     test_features = scaler.transform(test_features)
+
+    # Encode test labels
+    test_labels = label_encoder.transform(test_labels)
 
     # Predict and evaluate
     predictions = clf.predict(test_features)
