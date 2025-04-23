@@ -1,4 +1,4 @@
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.preprocessing import StandardScaler
@@ -8,7 +8,7 @@ from feature_extraction import extract_features
 
 def train_model(features, labels):
     """
-    Train a Random Forest model and evaluate it on a validation set.
+    Train a Random Forest model with hyperparameter tuning and evaluate it on a validation set.
 
     Args:
         features (array-like): Feature vectors for training.
@@ -24,8 +24,19 @@ def train_model(features, labels):
     # Split data into training and validation sets
     X_train, X_val, y_train, y_val = train_test_split(features, labels, test_size=0.2, random_state=42)
 
-    print("Training the model...")
-    clf = RandomForestClassifier(n_estimators=100, random_state=42)
+    print("Tuning hyperparameters...")
+    param_grid = {
+        'n_estimators': [100, 200, 300],
+        'max_depth': [None, 10, 20, 30],
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 4]
+    }
+    grid_search = GridSearchCV(RandomForestClassifier(random_state=42), param_grid, cv=3, scoring='accuracy')
+    grid_search.fit(X_train, y_train)
+    clf = grid_search.best_estimator_
+    print(f"Best parameters: {grid_search.best_params_}")
+
+    print("Training the model with best parameters...")
     clf.fit(X_train, y_train)
     print("Model training completed.")
 
